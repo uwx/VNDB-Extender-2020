@@ -1,11 +1,11 @@
-{ 
-   "author":"Evert Verschoor & Marcussacana",
-   "content_scripts":[ 
-      { 
-         "css":[ 
+{
+   "author": "Evert Verschoor & Marcussacana",
+   "content_scripts": [
+      {
+         "css": [
             "styles/default.css"
          ],
-         "js":[ 
+         "js": [
             "scripts/httpController.js",
             "scripts/storageController.js",
             "scripts/Query.js",
@@ -16,7 +16,7 @@
             "scripts/default.js"
          ],
          "all_frames": true,
-         "matches":[ 
+         "matches": [
             "*://query.vndb.org/*",
             "*://vndb.org/u*/list",
             "*://vndb.org/u*/votes",
@@ -25,37 +25,48 @@
             "*://vndb.org/u*/votes?c=*",
             "*://vndb.org/u*/wish?f=*",
             "*://vndb.org/u*/ulist?*",
-            "*://vndb.org/v", 
+            "*://vndb.org/v",
             "*://vndb.org/v?*"
          ]
       }
    ],
-   "web_accessible_resources": ["scripts/Query.js"],
-   "background": {
-         "scripts": [
-         "scripts/storageController.js",
-         "scripts/CSP.js"
-       ],
-       "persistent": true
+   "web_accessible_resources": [{
+      "resources": ["scripts/Query.js"],
+      "matches": [
+         "*://*.vndb.org/*",
+         "*://vndb.org/*"
+      ]
+   }],
+   "declarative_net_request": {
+      "rule_resources" : [{
+        "id": "ruleset_2",
+        "enabled": true,
+        "path": "rules.json"
+      }]
    },
-   "browser_action": {},
-   "description":"Improves readability and automatically adds images and useful information to VNDB visual novel lists.",
-   "icons":{ 
-      "128":"icons/icon-128.png",
-      "16":"icons/icon-16.png",
-      "48":"icons/icon-48.png",
-      "96":"icons/icon-96.png"
+   "description": "Improves readability and automatically adds images and useful information to VNDB visual novel lists.",
+   "icons": {
+      "128": "icons/icon-128.png",
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
    },
-   "manifest_version":2,
-   "name":"VNDB Extender 2020",
-   "permissions":[ 
-      "https://vndb.org/*",
-      "https://query.vndb.org/*",
+   "manifest_version": 3,
+   "name": "VNDB Extender 2020",
+   "permissions": [
       "webRequest",
       "storage",
-      "unlimitedStorage",  
-      "webRequestBlocking",
-      "browsingData"
+      "unlimitedStorage",
+      "browsingData",
+      "declarativeNetRequest",
+      "declarativeNetRequestWithHostAccess",
+      "declarativeNetRequestFeedback"
    ],
-   "version":"3.0.0"
+   "host_permissions": [
+      "<all_urls>",
+      "*://vndb.org/*",
+      "*://query.vndb.org/*",
+      "*://*.vndb.org/*"
+   ],
+   "version": "3.0.0"
 }

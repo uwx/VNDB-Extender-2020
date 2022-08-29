@@ -1,0 +1,27 @@
+[
+    {
+        "$comment": "See https://bugs.chromium.org/p/chromium/issues/detail?id=1247400",
+        "id": 3,
+        "priority": 1,
+        "action": {
+            "type": "modifyHeaders",
+            "responseHeaders": [{
+                "operation": "set",
+                "header": "Content-Security-Policy",
+                "value": "default-src 'none'; connect-src 'self'; img-src *; script-src https://*.vndb.org; style-src 'unsafe-inline' https://vndb.org https://*.vndb.org; form-action 'self'; frame-ancestors 'self' https://*.vndb.org https://vndb.org"
+            }, {
+                "operation": "append",
+                "header": "Access-Control-Allow-Origin",
+                "value": "https://vndb.org"
+            }, {
+                "operation": "append",
+                "header": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+            }]
+        },
+        "condition": {
+            "urlFilter": "||vndb.org^",
+            "resourceTypes": ["main_frame", "sub_frame", "xmlhttprequest"]
+        }
+    }
+]

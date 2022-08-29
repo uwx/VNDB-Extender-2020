@@ -1,0 +1,16 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/rules.json"
+            ],
+            "url": "./rules-schema.json"
+        },
+        {
+            "fileMatch": [
+                "/manifest.json"
+            ],
+            "url": "https://json.schemastore.org/chrome-manifest"
+        }
+    ]
+}

@@ -1,0 +1,321 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "items": {
+        "$ref": "#/definitions/WelcomeElement"
+    },
+    "definitions": {
+        "WelcomeElement": {
+            "title": "WelcomeElement",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "An id which uniquely identifies a rule. Mandatory and should be >= 1."
+                },
+                "priority": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Rule priority. Defaults to 1. When specified, should be >= 1."
+                },
+                "action": {
+                    "$ref": "#/definitions/RuleAction",
+                    "description": "The action to take if this rule is matched."
+                },
+                "condition": {
+                    "$ref": "#/definitions/RuleCondition",
+                    "description": "The condition under which this rule is triggered."
+                }
+            },
+            "required": [
+                "action",
+                "condition",
+                "id"
+            ]
+        },
+        "RuleAction": {
+            "title": "RuleAction",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "title": "RuleActionType",
+                    "type": "string",
+                    "enum": ["block", "redirect", "allow", "upgradeScheme", "modifyHeaders", "allowAllRequests"],
+                    "description": "The type of action to perform."
+                },
+                "redirect": {
+                    "$ref": "#/definitions/Redirect",
+                    "description": "Describes how the redirect should be performed. Only valid for redirect rules."
+                },
+                "requestHeaders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ModifyHeaderInfo"
+                    },
+                    "description": "The request headers to modify for the request. Only valid if RuleActionType is \"modifyHeaders\"."
+                },
+                "responseHeaders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ModifyHeaderInfo"
+                    },
+                    "description": "The response headers to modify for the request. Only valid if RuleActionType is \"modifyHeaders\"."
+                }
+            },
+            "required": [
+                "type"
+            ]
+        },
+        "Redirect": {
+            "title": "Redirect",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ],
+                    "description": "The redirect url. Redirects to JavaScript urls are not allowed."
+                },
+                "extensionPath": {
+                    "type": "string",
+                    "description": "Path relative to the extension directory. Should start with '/'."
+                },
+                "transform": {
+                    "$ref": "#/definitions/URLTransform",
+                    "description": "Url transformations to perform."
+                },
+                "regexSubstitution": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "https"
+                    ],
+                    "description": "Substitution pattern for rules which specify a regexFilter. The first match of regexFilter within the url will be replaced with this pattern. Within regexSubstitution, backslash-escaped digits (\\1 to \\9) can be used to insert the corresponding capture groups. \\0 refers to the entire matching text."
+                }
+            },
+            "required": []
+        },
+        "URLTransform": {
+            "title": "URLTransform",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "fragment": { "type": "string" },
+                "host": { "type": "string" },
+                "password": { "type": "string" },
+                "path": { "type": "string" },
+                "port": { "type": "string" },
+                "query": { "type": "string" },
+                "scheme": { "type": "string" },
+                "username": { "type": "string" },
+                "queryTransform": {
+                    "type": "object",
+                    "title": "QueryTransform",
+                    "additionalProperties": false,
+                    "properties": {
+                        "addOrReplaceParams": {
+                            "type": "array",
+                            "items": {
+                                "title": "QueryKeyValue",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "key": { "type": "string" },
+                                    "value": { "type": "string" },
+                                    "replaceOnly": {
+                                        "type": "boolean",
+                                        "description": "If true, the query key is replaced only if it's already present. Otherwise, the key is also added if it's missing. Defaults to false."
+                                    }
+                                },
+                                "required": ["key", "value", "replaceOnly"]
+                            },
+                            "description": "The list of query key-value pairs to be added or replaced."
+                        },
+                        "removeParams": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "The list of query keys to be removed."
+                        }
+                    }
+                }
+            },
+            "required": []
+        },
+        "ModifyHeaderInfo": {
+            "title": "ModifyHeaderInfo",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "header": {
+                    "type": "string"
+                },
+                "operation": {
+                    "title": "HeaderOperation",
+                    "type": "string",
+                    "enum": ["append", "set", "remove"]
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "header",
+                "operation"
+            ]
+        },
+        "RuleCondition": {
+            "title": "RuleCondition",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "domains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Use initiatorDomains instead\n\nThe rule will only match network requests originating from the list of domains."
+                },
+                "excludedDomains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Use excludedInitiatorDomains instead\n\nThe rule will not match network requests originating from the list of excludedDomains."
+                },
+                "excludedInitiatorDomains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The rule will not match network requests originating from the list of excludedDomains. If the list is empty or omitted, no domains are excluded. This takes precedence over initiatorDomains.\n\nNotes:\n\nSub-domains like \"a.example.com\" are also allowed.\nThe entries must consist of only ascii characters.\nUse punycode encoding for internationalized domains.\nThis matches against the request initiator and not the request url."
+                },
+                "excludedRequestDomains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The rule will not match network requests when the domains matches one from the list of excludedDomains. If the list is empty or omitted, no domains are excluded. This takes precedence over requestDomains.\n\nNotes:\n\nSub-domains like \"a.example.com\" are also allowed.\nThe entries must consist of only ascii characters.\nUse punycode encoding for internationalized domains."
+                },
+                "excludedRequestMethods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RequestMethod"
+                    },
+                    "description": "List of request methods which the rule won't match. Only one of requestMethods and excludedRequestMethods should be specified. If neither of them is specified, all request methods are matched."
+                },
+                "excludedResourceTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResourceType"
+                    },
+                    "description": "List of resource types which the rule won't match. Only one of resourceTypes and excludedResourceTypes should be specified. If neither of them is specified, all resource types except \"main_frame\" are blocked."
+                },
+                "excludedTabIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "description": "List of tabs.Tab.id which the rule should not match. An ID of tabs.TAB_ID_NONE excludes requests which don't originate from a tab. Only supported for session-scoped rules."
+                },
+                "initiatorDomains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The rule will only match network requests originating from the list of initiatorDomains. If the list is omitted, the rule is applied to requests from all domains. An empty list is not allowed.\n\nNotes:\n\nSub-domains like \"a.example.com\" are also allowed.\nThe entries must consist of only ascii characters.\nUse punycode encoding for internationalized domains.\nThis matches against the request initiator and not the request url."
+                },
+                "isUrlFilterCaseSensitive": {
+                    "type": "boolean",
+                    "description": "Whether the urlFilter or regexFilter (whichever is specified) is case sensitive. Default is true."
+                },
+                "regexFilter": {
+                    "type": "string",
+                    "description": "Regular expression to match against the network request url. This follows the RE2 syntax.\n\nNote: Only one of urlFilter or regexFilter can be specified.\n\nNote: The regexFilter must be composed of only ASCII characters. This is matched against a url where the host is encoded in the punycode format (in case of internationalized domains) and any other non-ascii characters are url encoded in utf-8."
+                },
+                "requestDomains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The rule will only match network requests when the domain matches one from the list of requestDomains. If the list is omitted, the rule is applied to requests from all domains. An empty list is not allowed.\n\nNotes:\n\nSub-domains like \"a.example.com\" are also allowed.\nThe entries must consist of only ascii characters.\nUse punycode encoding for internationalized domains."
+                },
+                "requestMethods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RequestMethod"
+                    },
+                    "description": "List of resource types which the rule can match. An empty list is not allowed.\n\nNote: this must be specified for allowAllRequests rules and may only include the sub_frame and main_frame resource types."
+                },
+                "resourceTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResourceType"
+                    },
+                    "description": "List of resource types which the rule can match. An empty list is not allowed.\n\nNote: this must be specified for allowAllRequests rules and may only include the sub_frame and main_frame resource types."
+                },
+                "tabIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "description": "List of tabs.Tab.id which the rule should match. An ID of tabs.TAB_ID_NONE matches requests which don't originate from a tab. An empty list is not allowed. Only supported for session-scoped rules."
+                },
+                "urlFilter": {
+                    "type": "string",
+                    "description": "The pattern which is matched against the network request url. Supported constructs:\n\n'*' : Wildcard: Matches any number of characters.\n\n'|' : Left/right anchor: If used at either end of the pattern, specifies the beginning/end of the url respectively.\n\n'||' : Domain name anchor: If used at the beginning of the pattern, specifies the start of a (sub-)domain of the URL.\n\n'^' : Separator character: This matches anything except a letter, a digit or one of the following: _ - . %. This can also match the end of the URL.\n\nTherefore urlFilter is composed of the following parts: (optional Left/Domain name anchor) + pattern + (optional Right anchor).\n\nIf omitted, all urls are matched. An empty string is not allowed.\n\nA pattern beginning with ||* is not allowed. Use * instead.\n\nNote: Only one of urlFilter or regexFilter can be specified.\n\nNote: The urlFilter must be composed of only ASCII characters. This is matched against a url where the host is encoded in the punycode format (in case of internationalized domains) and any other non-ascii characters are url encoded in utf-8. For example, when the request url is http://abc.рф?q=ф, the urlFilter will be matched against the url http://abc.xn--p1ai/?q=%D1%84."
+                },
+                "domainType": {
+                    "title": "DomainType",
+                    "type": "string",
+                    "enum": ["firstParty", "thirdParty"],
+                    "description": "Specifies whether the network request is first-party or third-party to the domain from which it originated. If omitted, all requests are accepted."
+                }
+            },
+            "required": [
+            ]
+        },
+        "RequestMethod": {
+            "title": "RequestMethod",
+            "type": "string",
+            "enum": [
+                "connect",
+                "delete",
+                "get",
+                "head",
+                "options",
+                "patch",
+                "post",
+                "put"
+            ]
+        },
+        "ResourceType": {
+            "title": "ResourceType",
+            "type": "string",
+            "enum": [
+                "main_frame",
+                "sub_frame",
+                "stylesheet",
+                "script",
+                "image",
+                "font",
+                "object",
+                "xmlhttprequest",
+                "ping",
+                "csp_report",
+                "media",
+                "websocket",
+                "webtransport",
+                "webbundle",
+                "other"
+            ]
+        }
+    }
+}
